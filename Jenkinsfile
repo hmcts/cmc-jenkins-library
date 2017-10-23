@@ -1,6 +1,6 @@
 #!groovy
 properties(
-  [[$class: 'GithubProjectProperty', projectUrlStr: 'http://git.reform.hmcts.net/cmc/jenkins-library/'],
+  [[$class: 'GithubProjectProperty', projectUrlStr: 'https://github.com/hmcts/cmc-jenkins-library'],
    pipelineTriggers([
      [$class: 'GitHubPushTrigger'],
      [$class: 'hudson.triggers.TimerTrigger', spec: 'H 1 * * *']
@@ -28,3 +28,4 @@ node {
     throw err
   }
 }
+
