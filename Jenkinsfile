@@ -7,6 +7,8 @@ properties(
    ])]
 )
 
+def channel = '#cmc-tech-notification'
+
 @Library('Reform') _
 
 node {
@@ -24,8 +26,9 @@ node {
       sh "./gradlew test"
     }
   } catch (err) {
-    notifyBuildFailure channel: '#cmc-tech-notification'
+    notifyBuildFailure channel: channel
     throw err
   }
+  notifyBuildFixed channel: channel
 }
 
