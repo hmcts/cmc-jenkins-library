@@ -2,14 +2,14 @@ package uk.gov.hmcts.cmc
 
 public enum Team {
   LEGAL(
-    'https://github.com/hmcts/legal-integration-tests.git',
+    'git@github.com:hmcts/cmc-integration-tests.git',
     'legal-frontend',
     'legal-integration-tests',
     '!!! NOT AVAILABLE YET !!!',
     '!!! NOT AVAILABLE YET !!!'
   ),
   CITIZEN(
-    'git@git.reform.hmcts.net:cmc/integration-tests.git',
+    'git@github.com:hmcts/cmc-integration-tests.git',
     'citizen-frontend',
     'integration-tests',
     'civilmoneyclaimsT1',
