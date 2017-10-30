@@ -104,29 +104,13 @@ class IntegrationTests implements Serializable {
       steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.png'
       steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.xml'
       steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.html'
+      steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.pdf'
     }
   }
 
   private void analyseTestResults(Team team) {
     def testExitCode = steps.sh returnStdout: true,
       script: "${dockerComposeCommand()} ps -q ${team.testsContainerName} | xargs docker inspect -f '{{ .State.ExitCode }}'"
-
-
-    def testResultFilePath = 'output/integration-result.xml'
-    if (steps.fileExists(testResultFilePath)) {
-      steps.junit testResultFilePath
-    }
-
-    if (team == Team.LEGAL) {
-      def mochaAwesomeReport = 'output/CMCT2-End2End-Test-Report.html'
-      if (steps.fileExists(mochaAwesomeReport)) {
-        steps.archiveArtifacts 'output/CMCT2-End2End-Test-Report.html'
-      }
-      def downloadedPdf = 'download/000LR001.pdf'
-      if(steps.fileExists(downloadedPdf)) {
-      steps.archiveArtifacts 'download/*.pdf'
-      }
-    }
 
     archiveDockerLogs()
 
