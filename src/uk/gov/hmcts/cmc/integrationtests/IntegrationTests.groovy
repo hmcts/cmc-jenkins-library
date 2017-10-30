@@ -52,6 +52,12 @@ class IntegrationTests implements Serializable {
           archiveDockerLogs()
           throw e
         } finally {
+          steps.junit allowEmptyResults: true, testResults: './output/*result.xml'
+          steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.png'
+          steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.xml'
+          steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.html'
+          steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.pdf'
+
           stopTestEnvironment()
         }
       }
@@ -94,40 +100,16 @@ class IntegrationTests implements Serializable {
   }
 
   private void executeCrossBrowserTests(Team team) {
-    try {
-      steps.sh """
-              mkdir -p output
-              ${dockerComposeCommand()} up --no-color -d saucelabs-connect
-              ./bin/run-cross-browser-tests.sh
-              """
-    } finally {
-      steps.junit allowEmptyResults: true, testResults: './output/*result.xml'
-      steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.png'
-      steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.xml'
-      steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.html'
-    }
+    steps.sh """
+            mkdir -p output
+            ${dockerComposeCommand()} up --no-color -d saucelabs-connect
+            ./bin/run-cross-browser-tests.sh
+            """
   }
 
   private void analyseTestResults(Team team) {
     def testExitCode = steps.sh returnStdout: true,
       script: "${dockerComposeCommand()} ps -q integration-tests | xargs docker inspect -f '{{ .State.ExitCode }}'"
-
-
-    def testResultFilePath = 'output/integration-result.xml'
-    if (steps.fileExists(testResultFilePath)) {
-      steps.junit testResultFilePath
-    }
-
-    if (team == Team.LEGAL) {
-      def mochaAwesomeReport = 'output/CMCT2-End2End-Test-Report.html'
-      if (steps.fileExists(mochaAwesomeReport)) {
-        steps.archiveArtifacts 'output/CMCT2-End2End-Test-Report.html'
-      }
-      def downloadedPdf = 'download/000LR001.pdf'
-      if(steps.fileExists(downloadedPdf)) {
-      steps.archiveArtifacts 'download/*.pdf'
-      }
-    }
 
     archiveDockerLogs()
 
