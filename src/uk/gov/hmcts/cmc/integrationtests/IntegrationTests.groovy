@@ -80,14 +80,15 @@ class IntegrationTests implements Serializable {
   private void startTestEnvironment(String application) {
     steps.sh """
               ${dockerComposeCommand()} up --no-color -d remote-webdriver \\
-                         ${application}          
+                         citizen-frontend \\
+                         legal-frontend
               """
   }
 
   private void executeTests(Team team) {
     steps.sh """
             mkdir -p output
-            ${dockerComposeCommand()} up --no-deps --no-color ${team.testsContainerName}
+            ${dockerComposeCommand()} up --no-deps --no-color integration-tests
             """
     analyseTestResults(team)
   }
@@ -109,7 +110,7 @@ class IntegrationTests implements Serializable {
 
   private void analyseTestResults(Team team) {
     def testExitCode = steps.sh returnStdout: true,
-      script: "${dockerComposeCommand()} ps -q ${team.testsContainerName} | xargs docker inspect -f '{{ .State.ExitCode }}'"
+      script: "${dockerComposeCommand()} ps -q integration-tests | xargs docker inspect -f '{{ .State.ExitCode }}'"
 
 
     def testResultFilePath = 'output/integration-result.xml'
