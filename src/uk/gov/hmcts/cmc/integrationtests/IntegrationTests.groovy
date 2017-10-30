@@ -52,6 +52,12 @@ class IntegrationTests implements Serializable {
           archiveDockerLogs()
           throw e
         } finally {
+          steps.junit allowEmptyResults: true, testResults: './output/*result.xml'
+          steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.png'
+          steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.xml'
+          steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.html'
+          steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.pdf'
+
           stopTestEnvironment()
         }
       }
@@ -93,19 +99,11 @@ class IntegrationTests implements Serializable {
   }
 
   private void executeCrossBrowserTests(Team team) {
-    try {
-      steps.sh """
-              mkdir -p output
-              ${dockerComposeCommand()} up --no-color -d saucelabs-connect
-              ./bin/run-cross-browser-tests.sh
-              """
-    } finally {
-      steps.junit allowEmptyResults: true, testResults: './output/*result.xml'
-      steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.png'
-      steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.xml'
-      steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.html'
-      steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.pdf'
-    }
+    steps.sh """
+            mkdir -p output
+            ${dockerComposeCommand()} up --no-color -d saucelabs-connect
+            ./bin/run-cross-browser-tests.sh
+            """
   }
 
   private void analyseTestResults(Team team) {
