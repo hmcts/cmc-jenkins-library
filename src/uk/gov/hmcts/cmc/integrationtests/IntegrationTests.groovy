@@ -1,5 +1,7 @@
 package uk.gov.hmcts.cmc.integrationtests
 
+import uk.gov.hmcts.cmc.Team
+
 class IntegrationTests implements Serializable {
   def steps
   def env
@@ -29,15 +31,15 @@ class IntegrationTests implements Serializable {
     this.additionalComposeFiles = additionalComposeFiles
   }
 
-  def execute(Map config) {
-    execute(this.&executeTests, config)
+  def execute(Map config, Team team = Team.CITIZEN) {
+    doExecute(this.&executeTests, config)
   }
 
-  def executeCrossBrowser(Map config) {
-    execute(this.&executeCrossBrowserTests, config)
+  def executeCrossBrowser(Map config, Team team = Team.CITIZEN) {
+    doExecute(this.&executeCrossBrowserTests, config)
   }
 
-  def execute(Closure runTestsFunction, Map config) {
+  private void doExecute(Closure runTestsFunction, Map config) {
     steps.ws(steps.pwd() + "/it-tests-${env.JOB_NAME.replaceAll("\\/", "-")}-${env.BUILD_NUMBER}") {
       steps.wrap([$class: 'VaultBuildWrapper', vaultSecrets: secrets]) {
         configure(env, config)
