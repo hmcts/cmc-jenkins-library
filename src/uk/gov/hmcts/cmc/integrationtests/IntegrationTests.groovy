@@ -102,9 +102,9 @@ class IntegrationTests implements Serializable {
   private String runCommand() {
     String testsTag = env.TESTS_TAG
     if (testsTag == null || testsTag.trim().isEmpty()) {
-      return "run --no-deps --rm integration-tests"
+      return "run --no-deps integration-tests"
     } else {
-      return "run --no-deps --rm integration-tests test -- --grep '${testsTag}'"
+      return "run --no-deps integration-tests test -- --grep '${testsTag}'"
     }
   }
 
