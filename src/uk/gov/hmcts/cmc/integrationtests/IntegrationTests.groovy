@@ -92,11 +92,16 @@ class IntegrationTests implements Serializable {
   }
 
   private void executeTests() {
-    steps.sh """
+    def exitCode = steps.sh returnStatus: true, script: """
             mkdir -p output
             ${dockerComposeCommand()} ${runCommand()}
             """
-    analyseTestResults()
+    archiveDockerLogs()
+
+    if (exitCode > 0) {
+      steps.archiveArtifacts 'output/*.png'
+      steps.error("Integration tests failed")
+    }
   }
 
   private String runCommand() {
@@ -114,18 +119,6 @@ class IntegrationTests implements Serializable {
             ${dockerComposeCommand()} up --no-color -d saucelabs-connect
             ./bin/run-cross-browser-tests.sh
             """
-  }
-
-  private void analyseTestResults() {
-    def testExitCode = steps.sh returnStdout: true,
-      script: "${dockerComposeCommand()} ps -q integration-tests | xargs docker inspect -f '{{ .State.ExitCode }}'"
-
-    archiveDockerLogs()
-
-    if (testExitCode.toInteger() > 0) {
-      steps.archiveArtifacts 'output/*.png'
-      steps.error("Integration tests failed")
-    }
   }
 
   private void archiveDockerLogs() {
