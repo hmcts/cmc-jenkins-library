@@ -92,9 +92,18 @@ class IntegrationTests implements Serializable {
   private void executeTests() {
     steps.sh """
             mkdir -p output
-            ${dockerComposeCommand()} up --no-deps --no-color integration-tests
+            ${dockerComposeCommand()} ${runCommand()}
             """
     analyseTestResults()
+  }
+
+  private String runCommand() {
+    String testsTag = env.TESTS_TAG
+    if (testsTag == null || testsTag.trim().isEmpty()) {
+      return "run --no-deps --rm integration-tests"
+    } else {
+      return "run --no-deps --rm integration-tests test -- --grep '${testsTag}'"
+    }
   }
 
   private void executeCrossBrowserTests() {
@@ -126,13 +135,13 @@ class IntegrationTests implements Serializable {
     steps.sh "${dockerComposeCommand()} down"
   }
 
-  private void configure(env, Map versions) {
+  private void configure(env, Map config) {
     env.COMPOSE_HTTP_TIMEOUT = 240
     env.SAUCELABS_USERNAME = 'civilmoneyclaimsT1'
     env.SAUCELABS_TUNNEL_IDENTIFIER = 'saucelabs-overnight-tunnel-cmc-T1'
 
-    if (versions != null) {
-      for (Map.Entry<String, String> entry : versions.entrySet()) {
+    if (config != null) {
+      for (Map.Entry<String, String> entry : config.entrySet()) {
         env[entry.getKey()] = entry.getValue()
       }
     }
