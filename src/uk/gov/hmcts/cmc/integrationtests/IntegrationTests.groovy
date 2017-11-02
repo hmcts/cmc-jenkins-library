@@ -117,7 +117,7 @@ class IntegrationTests implements Serializable {
     steps.sh """
             mkdir -p output
             ${dockerComposeCommand()} up --no-color -d saucelabs-connect
-            ./bin/run-cross-browser-tests.sh
+            ./bin/cross-browser/run-tests.sh
             """
   }
 
