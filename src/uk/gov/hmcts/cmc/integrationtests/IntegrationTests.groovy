@@ -32,22 +32,22 @@ class IntegrationTests implements Serializable {
   }
 
   def execute(Map config, Team team = Team.CITIZEN) {
-    execute(this.&executeTests, config, team)
+    doExecute(this.&executeTests, config)
   }
 
   def executeCrossBrowser(Map config, Team team = Team.CITIZEN) {
-    execute(this.&executeCrossBrowserTests, config, team)
+    doExecute(this.&executeCrossBrowserTests, config)
   }
 
-  def execute(Closure runTestsFunction, Map config, Team team) {
+  private void doExecute(Closure runTestsFunction, Map config) {
     steps.ws(steps.pwd() + "/it-tests-${env.JOB_NAME.replaceAll("\\/", "-")}-${env.BUILD_NUMBER}") {
       steps.wrap([$class: 'VaultBuildWrapper', vaultSecrets: secrets]) {
-        configure(env, config, team)
-        loadDockerComposeFile(team.gitUrl)
+        configure(env, config)
+        loadDockerComposeFile('https://github.com/hmcts/cmc-integration-tests.git')
         updateImages()
         try {
-          startTestEnvironment(team.application)
-          runTestsFunction(team)
+          startTestEnvironment()
+          runTestsFunction()
         } catch (e) {
           archiveDockerLogs()
           throw e
@@ -83,39 +83,42 @@ class IntegrationTests implements Serializable {
     steps.sh "${dockerComposeCommand()} pull"
   }
 
-  private void startTestEnvironment(String application) {
+  private void startTestEnvironment() {
     steps.sh """
               ${dockerComposeCommand()} up --no-color -d remote-webdriver \\
-                         ${application}          
+                         citizen-frontend \\
+                         legal-frontend
               """
   }
 
-  private void executeTests(Team team) {
-    steps.sh """
+  private void executeTests() {
+    def exitCode = steps.sh returnStatus: true, script: """
             mkdir -p output
-            ${dockerComposeCommand()} up --no-deps --no-color ${team.testsContainerName}
+            ${dockerComposeCommand()} ${runCommand()}
             """
-    analyseTestResults(team)
-  }
-
-  private void executeCrossBrowserTests(Team team) {
-    steps.sh """
-            mkdir -p output
-            ${dockerComposeCommand()} up --no-color -d saucelabs-connect
-            ./bin/run-cross-browser-tests.sh
-            """
-  }
-
-  private void analyseTestResults(Team team) {
-    def testExitCode = steps.sh returnStdout: true,
-      script: "${dockerComposeCommand()} ps -q ${team.testsContainerName} | xargs docker inspect -f '{{ .State.ExitCode }}'"
-
     archiveDockerLogs()
 
-    if (testExitCode.toInteger() > 0) {
+    if (exitCode > 0) {
       steps.archiveArtifacts 'output/*.png'
       steps.error("Integration tests failed")
     }
+  }
+
+  private String runCommand() {
+    String testsTag = env.TESTS_TAG
+    if (testsTag == null || testsTag.trim().isEmpty()) {
+      return "run --no-deps integration-tests"
+    } else {
+      return "run --no-deps integration-tests test -- --grep '${testsTag}'"
+    }
+  }
+
+  private void executeCrossBrowserTests() {
+    steps.sh """
+            mkdir -p output
+            ${dockerComposeCommand()} up --no-color -d saucelabs-connect
+            ./bin/cross-browser/run-tests.sh
+            """
   }
 
   private void archiveDockerLogs() {
@@ -127,13 +130,13 @@ class IntegrationTests implements Serializable {
     steps.sh "${dockerComposeCommand()} down"
   }
 
-  private void configure(env, Map versions, Team team) {
+  private void configure(env, Map config) {
     env.COMPOSE_HTTP_TIMEOUT = 240
-    env.SAUCELABS_USERNAME = team.saucelabsUserName
-    env.SAUCELABS_TUNNEL_IDENTIFIER = team.saucelabsTunnelIdentifier
+    env.SAUCELABS_USERNAME = 'civilmoneyclaimsT1'
+    env.SAUCELABS_TUNNEL_IDENTIFIER = 'saucelabs-overnight-tunnel-cmc-T1'
 
-    if (versions != null) {
-      for (Map.Entry<String, String> entry : versions.entrySet()) {
+    if (config != null) {
+      for (Map.Entry<String, String> entry : config.entrySet()) {
         env[entry.getKey()] = entry.getValue()
       }
     }
