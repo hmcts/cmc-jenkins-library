@@ -1,7 +1,5 @@
 package uk.gov.hmcts.cmc.integrationtests
 
-import uk.gov.hmcts.cmc.Team
-
 class IntegrationTests implements Serializable {
   def steps
   def env
@@ -31,11 +29,11 @@ class IntegrationTests implements Serializable {
     this.additionalComposeFiles = additionalComposeFiles
   }
 
-  def execute(Map config, Team team = Team.CITIZEN) {
+  def execute(Map config) {
     doExecute(this.&executeTests, config)
   }
 
-  def executeCrossBrowser(Map config, Team team = Team.CITIZEN) {
+  def executeCrossBrowser(Map config) {
     doExecute(this.&executeCrossBrowserTests, config)
   }
 
