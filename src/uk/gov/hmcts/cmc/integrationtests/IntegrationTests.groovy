@@ -46,9 +46,6 @@ class IntegrationTests implements Serializable {
         try {
           startTestEnvironment()
           runTestsFunction()
-        } catch (e) {
-          archiveDockerLogs()
-          throw e
         } finally {
           steps.junit allowEmptyResults: true, testResults: './output/*result.xml'
           steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.png'
@@ -56,6 +53,8 @@ class IntegrationTests implements Serializable {
           steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.html'
           steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'output/*.pdf'
 
+          archiveDockerStatus()
+          archiveDockerLogs()
           stopTestEnvironment()
         }
       }
@@ -94,7 +93,6 @@ class IntegrationTests implements Serializable {
             mkdir -p output
             ${dockerComposeCommand()} ${runCommand()}
             """
-    archiveDockerLogs()
 
     if (exitCode > 0) {
       steps.archiveArtifacts 'output/*.png'
@@ -119,9 +117,19 @@ class IntegrationTests implements Serializable {
             """
   }
 
+  private void archiveDockerStatus() {
+    steps.sh "mkdir -p output && ${dockerComposeCommand()} ps > output/docker-status.txt"
+    steps.archiveArtifacts 'output/docker-status.txt'
+  }
+
   private void archiveDockerLogs() {
-    steps.sh "mkdir -p output && ${dockerComposeCommand()} logs --no-color > output/logs.txt"
-    steps.archiveArtifacts 'output/logs.txt'
+    steps.sh """
+             mkdir -p output
+             ${dockerComposeCommand()} logs --no-color > output/docker-logs.txt
+             for service in \$(docker-compose config --services); do docker-compose logs --no-color \$service > output/docker-log-\$service.txt; done
+             """
+
+    steps.archiveArtifacts 'output/docker-log*.txt'
   }
 
   private void stopTestEnvironment() {
