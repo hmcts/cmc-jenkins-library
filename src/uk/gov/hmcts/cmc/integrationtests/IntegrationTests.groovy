@@ -125,7 +125,6 @@ class IntegrationTests implements Serializable {
   private void archiveDockerLogs() {
     steps.sh """
              mkdir -p output
-             ${dockerComposeCommand()} logs --no-color > output/docker-logs.txt
              for service in \$(docker-compose config --services); do docker-compose logs --no-color \$service > output/docker-log-\$service.txt; done
              """
 
