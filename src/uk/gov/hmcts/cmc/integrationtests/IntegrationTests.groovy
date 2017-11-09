@@ -81,11 +81,20 @@ class IntegrationTests implements Serializable {
   }
 
   private void startTestEnvironment() {
-    steps.sh """
-              ${dockerComposeCommand()} up --no-color -d remote-webdriver \\
-                         citizen-frontend \\
-                         legal-frontend
-              """
+    def services = []
+
+    switch (env.TESTS_TAG) {
+      case '@citizen':
+        services << 'citizen-frontend'
+        break
+      case '@legal':
+        services << 'legal-frontend'
+        break
+      default:
+        services = ['citizen-frontend', 'legal-frontend']
+    }
+
+    steps.sh "${dockerComposeCommand()} up --no-color -d remote-webdriver ${services.join(' ')}"
   }
 
   private void executeTests() {
