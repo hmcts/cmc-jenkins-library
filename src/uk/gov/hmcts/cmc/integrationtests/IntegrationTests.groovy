@@ -149,7 +149,7 @@ class IntegrationTests implements Serializable {
     String branchName = env.CHANGE_BRANCH ? env.CHANGE_BRANCH : env.BRANCH_NAME
 
     if (branchName != 'master') {
-      for (repository in ['cmc/integration-tests', 'cmc/citizen-frontend', 'cmc/legal-frontend', 'cmc/claim-store']) {
+      for (repository in ['cmc/integration-tests', 'cmc/citizen-frontend', 'cmc/legal-frontend', 'cmc/claim-store-api']) {
         String version = artifactoryClient.getLatestImageVersion(repository, branchName)
 
         if (version != null) {
