@@ -4,10 +4,12 @@ import groovy.json.JsonSlurper
 
 class ArtifactoryClient {
 
-  private String artifactoryServerUrl
+  private steps
+  private artifactoryServerUrl
 
   ArtifactoryClient(steps) {
-    artifactoryServerUrl = steps.getArtifactoryServer(artifactoryServerID: 'artifactory.reform').getUrl()
+    this.steps = steps
+    this.artifactoryServerUrl = steps.getArtifactoryServer(artifactoryServerID: 'artifactory.reform').getUrl()
   }
 
   String getLatestImageVersion(String repository, String branch) {
