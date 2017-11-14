@@ -27,15 +27,15 @@ class ArtifactoryClient {
 
   private String query(String repoName, String branchName) {
     """
-      items.find(
-        { "repo": "docker-local" },
-        { "@docker.repoName": "${repoName}" },
-        { "@build.branch": "${branchName}" }
-      )
-      .include("repo", "path", "name", "created")
-      .sort({"\$desc": ["created"]})
-      .limit(1)
-    """
+    |items.find(
+    |  { "repo": "docker-local" },
+    |  { "@docker.repoName": "${repoName}" },
+    |  { "@build.branch": "${branchName}" }
+    |)
+    |.include("repo", "path", "name", "created")
+    |.sort({"\$desc": ["created"]})
+    |.limit(1)
+    """.stripMargin()
   }
 
 }
