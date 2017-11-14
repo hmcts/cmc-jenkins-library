@@ -7,6 +7,8 @@ repositories {
 dependencies {
   compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.12'
   compile group: 'com.cloudbees', name: 'groovy-cps', version: '1.20'
+
+  testCompile group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4'
 }
 
 sourceSets {

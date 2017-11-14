@@ -1,9 +1,14 @@
 package uk.gov.hmcts.cmc.integrationtests
 
+import uk.gov.hmcts.cmc.utils.ArtifactoryClient
+
+import static uk.gov.hmcts.cmc.utils.TestRunnerUtils.convertToVersionEnvironmentVariable
+
 class IntegrationTests implements Serializable {
   def steps
   def env
   String[] additionalComposeFiles
+  ArtifactoryClient artifactoryClient
 
   def secrets = [
     [$class: 'VaultSecret', path: 'secret/test/cc/payment/api/gov-pay-keys/cmc', secretValues:
@@ -27,6 +32,7 @@ class IntegrationTests implements Serializable {
     this.env = env
     this.steps = steps
     this.additionalComposeFiles = additionalComposeFiles
+    this.artifactoryClient = new ArtifactoryClient(steps)
   }
 
   def execute(Map config) {
@@ -63,7 +69,7 @@ class IntegrationTests implements Serializable {
 
   private String dockerComposeCommand() {
     String composeCommand = "docker-compose -f docker-compose.yml"
-    for (String additionalComposeFile: additionalComposeFiles) {
+    for (String additionalComposeFile : additionalComposeFiles) {
       composeCommand += " -f " + additionalComposeFile
     }
     return composeCommand
@@ -139,6 +145,19 @@ class IntegrationTests implements Serializable {
     env.COMPOSE_HTTP_TIMEOUT = 240
     env.SAUCELABS_USERNAME = 'civilmoneyclaimsT1'
     env.SAUCELABS_TUNNEL_IDENTIFIER = 'saucelabs-overnight-tunnel-cmc-T1'
+
+    String branchName = env.CHANGE_BRANCH ? env.CHANGE_BRANCH : env.BRANCH_NAME
+
+    if (branchName != 'master') {
+      for (repository in ['cmc/integration-tests', 'cmc/citizen-frontend', 'cmc/legal-frontend', 'cmc/claim-store']) {
+        String version = artifactoryClient.getLatestImageVersion(repository, branchName)
+
+        if (version != null) {
+          steps.echo "E2E: Docker image ${repository}:${version} has been fround for branch ${branchName}"
+          env[convertToVersionEnvironmentVariable(repository)] = version
+        }
+      }
+    }
 
     if (config != null) {
       for (Map.Entry<String, String> entry : config.entrySet()) {
