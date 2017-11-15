@@ -153,7 +153,7 @@ class IntegrationTests implements Serializable {
         String version = artifactoryClient.getLatestImageVersion(repository, branchName)
 
         if (version != null) {
-          steps.echo "E2E: Docker image ${repository}:${version} has been found for branch ${branchName}"
+          steps.echo "Docker image ${repository}:${version} has been found for branch ${branchName}"
           env[convertToVersionEnvironmentVariable(repository)] = version
         }
       }
