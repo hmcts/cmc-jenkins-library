@@ -90,7 +90,8 @@ class IntegrationTests implements Serializable {
     steps.sh """
               ${dockerComposeCommand()} up --no-color -d remote-webdriver \\
                          citizen-frontend \\
-                         legal-frontend
+                         legal-frontend \\
+                         ccd-importer
               """
   }
 
