@@ -143,7 +143,7 @@ class IntegrationTests implements Serializable {
   }
 
   private void configure(env, Map config) {
-    env.COMPOSE_HTTP_TIMEOUT = 240
+    env.COMPOSE_HTTP_TIMEOUT = 300
     env.SAUCELABS_USERNAME = 'civilmoneyclaimsT1'
     env.SAUCELABS_TUNNEL_IDENTIFIER = 'saucelabs-overnight-tunnel-cmc-T1'
 
