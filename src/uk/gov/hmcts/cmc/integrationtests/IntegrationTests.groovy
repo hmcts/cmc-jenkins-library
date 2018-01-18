@@ -68,7 +68,7 @@ class IntegrationTests implements Serializable {
   }
 
   private String dockerComposeCommand() {
-    String composeCommand = "docker-compose --verbose -f docker-compose.yml"
+    String composeCommand = "docker-compose -f docker-compose.yml"
     for (String additionalComposeFile : additionalComposeFiles) {
       composeCommand += " -f " + additionalComposeFile
     }
@@ -132,7 +132,7 @@ class IntegrationTests implements Serializable {
   private void archiveDockerLogs() {
     steps.sh """
              mkdir -p output
-             for service in \$(docker-compose --verbose config --services); do docker-compose --verbose logs --no-color \$service > output/docker-log-\$service.txt; done
+             for service in \$(docker-compose config --services); do docker-compose logs --no-color \$service > output/docker-log-\$service.txt; done
              """
 
     steps.archiveArtifacts 'output/docker-log*.txt'
