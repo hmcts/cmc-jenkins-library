@@ -25,7 +25,23 @@ class IntegrationTests implements Serializable {
       [
         [$class: 'VaultSecretValue', envVar: 'SAUCELABS_ACCESS_KEY', vaultKey: 'value']
       ]
+    ],
+    [$class: 'VaultSecret', path: 'secret/prod/cmc/postcode-lookup/api-key', secretValues:
+      [
+        [$class: 'VaultSecretValue', envVar: 'POSTCODE_LOOKUP_API_KEY', vaultKey: 'value']
+      ]
+    ],
+    [$class: 'VaultSecret', path: 'secret/dev/cmc/smoke-tests/username', secretValues:
+      [
+        [$class: 'VaultSecretValue', envVar: 'SMOKE_TEST_USERNAME', vaultKey: 'value']
+      ]
+    ],
+    [$class: 'VaultSecret', path: 'secret/dev/cmc/smoke-tests/password', secretValues:
+      [
+        [$class: 'VaultSecretValue', envVar: 'SMOKE_TEST_PASSWORD', vaultKey: 'value']
+      ]
     ]
+
   ]
 
   IntegrationTests(env, steps, String... additionalComposeFiles) {
