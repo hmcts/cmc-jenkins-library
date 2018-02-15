@@ -40,8 +40,12 @@ class IntegrationTests implements Serializable {
       [
         [$class: 'VaultSecretValue', envVar: 'SMOKE_TEST_PASSWORD', vaultKey: 'value']
       ]
+    ],
+    [$class: 'VaultSecret', path: 'secret/dev/cmc/smoke-tests/solicitor-username', secretValues:
+      [
+        [$class: 'VaultSecretValue', envVar: 'SOLICITOR_SMOKE_TEST_USERNAME', vaultKey: 'value']
+      ]
     ]
-
   ]
 
   IntegrationTests(env, steps, String... additionalComposeFiles) {
