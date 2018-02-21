@@ -33,17 +33,17 @@ class IntegrationTests implements Serializable {
     ],
     [$class: 'VaultSecret', path: 'secret/dev/cmc/smoke-tests/citizen-username', secretValues:
       [
-        [$class: 'VaultSecretValue', envVar: 'AAT_TEST_CITIZEN_USER_USERNAME', vaultKey: 'value']
+        [$class: 'VaultSecretValue', envVar: 'SMOKE_TEST_CITIZEN_USERNAME', vaultKey: 'value']
       ]
     ],
     [$class: 'VaultSecret', path: 'secret/dev/cmc/smoke-tests/solicitor-username', secretValues:
       [
-        [$class: 'VaultSecretValue', envVar: 'AAT_TEST_SOLICITOR_USER_USERNAME', vaultKey: 'value']
+        [$class: 'VaultSecretValue', envVar: 'SMOKE_TEST_SOLICITOR_USERNAME', vaultKey: 'value']
       ]
     ],
     [$class: 'VaultSecret', path: 'secret/dev/cmc/smoke-tests/password', secretValues:
       [
-        [$class: 'VaultSecretValue', envVar: 'AAT_TEST_USER_PASSWORD', vaultKey: 'value']
+        [$class: 'VaultSecretValue', envVar: 'SMOKE_TEST_USER_PASSWORD', vaultKey: 'value']
       ]
     ]
   ]
