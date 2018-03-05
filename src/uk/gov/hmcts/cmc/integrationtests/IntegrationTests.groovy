@@ -129,10 +129,11 @@ class IntegrationTests implements Serializable {
 
   private String runCommand() {
     String testsTag = env.TESTS_TAG
+    steps.echo 'Running citizen integration tests'
     if (testsTag == null || testsTag.trim().isEmpty()) {
-      return "run --no-deps integration-tests"
+      return "run --no-deps citizen-integration-tests"
     } else {
-      return "run --no-deps integration-tests test -- --grep '${testsTag}'"
+      return "run --no-deps citizen-integration-tests test -- --grep '${testsTag}'"
     }
   }
 
@@ -170,7 +171,7 @@ class IntegrationTests implements Serializable {
     String branchName = env.CHANGE_BRANCH ? env.CHANGE_BRANCH : env.BRANCH_NAME
 
     if (branchName != 'master') {
-      for (repository in ['cmc/integration-tests', 'cmc/citizen-frontend', 'cmc/legal-frontend', 'cmc/claim-store-api']) {
+      for (repository in ['cmc/citizen-integration-tests', 'cmc/citizen-frontend', 'cmc/legal-frontend', 'cmc/claim-store-api']) {
         String version = artifactoryClient.getLatestImageVersion(repository, branchName)
 
         if (version != null) {
