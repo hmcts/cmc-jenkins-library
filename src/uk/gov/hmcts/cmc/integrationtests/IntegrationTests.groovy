@@ -133,7 +133,7 @@ class IntegrationTests implements Serializable {
     if (testsTag == null || testsTag.trim().isEmpty()) {
       return "run --no-deps citizen-integration-tests"
     } else {
-      return "run --no-deps citizen-integration-tests test -- --grep '${testsTag}'"
+      return "run --no-deps citizen-integration-tests test:integration -- --grep '${testsTag}'"
     }
   }
 
