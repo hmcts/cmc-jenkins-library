@@ -56,14 +56,14 @@ class IntegrationTests implements Serializable {
   }
 
   def execute(Map config) {
-    doExecute(this.&executeTests, config)
+    onDockerEnvironment(config, this.&executeTests)
   }
 
   def executeCrossBrowser(Map config) {
-    doExecute(this.&executeCrossBrowserTests, config)
+    onDockerEnvironment(config, this.&executeCrossBrowserTests)
   }
 
-  private void doExecute(Closure runTestsFunction, Map config) {
+  private void onDockerEnvironment(Map config, Closure runTestsFunction) {
     steps.ws(steps.pwd() + "/it-tests-${env.JOB_NAME.replaceAll("\\/", "-")}-${env.BUILD_NUMBER}") {
       steps.wrap([$class: 'VaultBuildWrapper', vaultSecrets: secrets]) {
         configure(env, config)
