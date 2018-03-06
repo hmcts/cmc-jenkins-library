@@ -56,7 +56,22 @@ class IntegrationTests implements Serializable {
   }
 
   def execute(Map config) {
-    onDockerEnvironment(config, this.&executeTests)
+    onDockerEnvironment(config, {
+      executeTests('citizen-integration-tests')
+      executeTests('legal-integration-tests')
+    })
+  }
+
+  def executeCitizenTests(Map config) {
+    onDockerEnvironment(config, {
+      executeTests('citizen-integration-tests')
+    })
+  }
+
+  def executeLegalTests(Map config) {
+    onDockerEnvironment(config, {
+      executeTests('legal-integration-tests')
+    })
   }
 
   def executeCrossBrowser(Map config) {
@@ -115,10 +130,10 @@ class IntegrationTests implements Serializable {
               """
   }
 
-  private void executeTests() {
+  private void executeTests(String testsImageName) {
     def exitCode = steps.sh returnStatus: true, script: """
             mkdir -p output
-            ${dockerComposeCommand()} ${runCommand()}
+            ${dockerComposeCommand()} ${runCommand(testsImageName)}
             """
 
     if (exitCode > 0) {
@@ -127,13 +142,13 @@ class IntegrationTests implements Serializable {
     }
   }
 
-  private String runCommand() {
+  private String runCommand(String testsImageName) {
     String testsTag = env.TESTS_TAG
     steps.echo 'Running citizen integration tests'
     if (testsTag == null || testsTag.trim().isEmpty()) {
-      return "run --no-deps citizen-integration-tests"
+      return "run --no-deps ${testsImageName}"
     } else {
-      return "run --no-deps citizen-integration-tests test:integration -- --grep '${testsTag}'"
+      return "run --no-deps ${testsImageName} test:integration -- --grep '${testsTag}'"
     }
   }
 
