@@ -144,7 +144,6 @@ class IntegrationTests implements Serializable {
 
   private String runCommand(String testsImageName) {
     String testsTag = env.TESTS_TAG
-    steps.echo 'Running citizen integration tests'
     if (testsTag == null || testsTag.trim().isEmpty()) {
       return "run --no-deps ${testsImageName}"
     } else {
